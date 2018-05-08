@@ -3,3 +3,8 @@
 
 ## artifacts ##
 bin/
+*.classpath
+
+## eclipse ##
+.settings/
+*.project

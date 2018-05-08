@@ -34,6 +34,6 @@ Overview
     false:記号を許可しない  
     
 ## Example
-    `java -classpath bin com.example.GeneratePassword`
-    `java -classpath bin com.example.GeneratePassword -l 12 -c 2 -s false`
-    `java -classpath bin com.example.GeneratePassword -s false`
+    java -classpath bin com.example.GeneratePassword
+    java -classpath bin com.example.GeneratePassword -l 12 -c 2 -s false
+    java -classpath bin com.example.GeneratePassword -s false

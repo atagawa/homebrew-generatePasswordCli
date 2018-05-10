@@ -19,8 +19,9 @@ public class PasswordPolicyParser {
     private SecureRandom secureRandom;
     private int length;
     private int charCase;
-    private boolean acceptSymbolChar;
+    private boolean isAcceptSymbolChar;
     private String policy;
+    private char[] acceptedSymbolChars;
 
     private boolean hasError;
     private ArrayList<String> responseMessages;
@@ -30,7 +31,7 @@ public class PasswordPolicyParser {
      */
     public PasswordPolicyParser() {
         this(Integer.parseInt(rb.getString("default.length")), Integer.parseInt(rb.getString("default.charCase")),
-                Boolean.parseBoolean(rb.getString("default.acceptSymbolChar")));
+                Boolean.parseBoolean(rb.getString("default.acceptSymbolChar")), rb.getString("default.acceptSpecialChars").toCharArray());
     }
 
     /**
@@ -40,11 +41,12 @@ public class PasswordPolicyParser {
      * @param charCase:int
      * @param acceptSymbolChar:boolean
      */
-    public PasswordPolicyParser(int length, int charCase, boolean acceptSymbolChar) {
+    public PasswordPolicyParser(int length, int charCase, boolean isAcceptSymbolChar, char[] acceptedSymbolChars) {
         try {
             this.length = length;
             this.charCase = charCase;
-            this.acceptSymbolChar = acceptSymbolChar;
+            this.isAcceptSymbolChar = isAcceptSymbolChar;
+            this.acceptedSymbolChars = acceptedSymbolChars;
             this.secureRandom = SecureRandom.getInstanceStrong();
         } catch (NoSuchAlgorithmException e) {
             System.err.println(rb.getString("noSuchAlgorithmExceptionMessage"));
@@ -54,24 +56,25 @@ public class PasswordPolicyParser {
 
     /**
      * policyをセットするメソッド
-     * 
-     * @param args：String[]
      */
-    public void setPasswordPolicy(String... args) {
-        handleArguments(args);
+    public void setPasswordPolicy() {
+        final int IDX_FOR_ONE_LETTER_STRING_TO_CHAR = 0;
         StringBuilder policy = new StringBuilder();
 
-        appendPolicy(policy, rb.getString("startOfNumericNumber").charAt(0), rb.getString("endOfNumericNumber").charAt(0));
+        appendPolicy(policy, rb.getString("startOfNumericNumber").charAt(IDX_FOR_ONE_LETTER_STRING_TO_CHAR),
+                rb.getString("endOfNumericNumber").charAt(IDX_FOR_ONE_LETTER_STRING_TO_CHAR));
         if (charCase == Integer.parseInt(rb.getString("charCaseUpperOnly"))
                 || charCase == Integer.parseInt(rb.getString("charCaseEitherUpperLower"))) {
-            appendPolicy(policy, rb.getString("startOfUpperCaseLetters").charAt(0), rb.getString("endOfUpperCaseLetters").charAt(0));
+            appendPolicy(policy, rb.getString("startOfUpperCaseLetters").charAt(IDX_FOR_ONE_LETTER_STRING_TO_CHAR),
+                    rb.getString("endOfUpperCaseLetters").charAt(IDX_FOR_ONE_LETTER_STRING_TO_CHAR));
         }
         if (charCase == Integer.parseInt(rb.getString("charCaseLowerOnly"))
                 || charCase == Integer.parseInt(rb.getString("charCaseEitherUpperLower"))) {
-            appendPolicy(policy, rb.getString("startOfLowerCaseLetters").charAt(0), rb.getString("endOfLowerCaseLetters").charAt(0));
+            appendPolicy(policy, rb.getString("startOfLowerCaseLetters").charAt(IDX_FOR_ONE_LETTER_STRING_TO_CHAR),
+                    rb.getString("endOfLowerCaseLetters").charAt(IDX_FOR_ONE_LETTER_STRING_TO_CHAR));
         }
-        if (acceptSymbolChar) {
-            appendPolicy(policy, rb.getString("default.acceptSpecialChars").toCharArray());
+        if (isAcceptSymbolChar) {
+            appendPolicy(policy, this.acceptedSymbolChars);
         }
         this.policy = policy.toString();
     }
@@ -83,9 +86,10 @@ public class PasswordPolicyParser {
      * @param ignore:char[]
      */
     public void setPasswordPolicy(StringBuilder policy, char[] ignore) {
+        final int POLICY_STRING_HAS_NOT_IGNORE_CHAR = -1;
         for (int i = 0; i < ignore.length; i++) {
             int charIdx = policy.indexOf(String.valueOf((char) ignore[i]));
-            if (charIdx != -1) {
+            if (charIdx != POLICY_STRING_HAS_NOT_IGNORE_CHAR) {
                 policy.deleteCharAt(charIdx);
             }
         }
@@ -102,7 +106,7 @@ public class PasswordPolicyParser {
     }
 
     // コマンドラインで取得した引数を分解し、エラーチェックおよび各変数にセットする
-    private void handleArguments(String... args) {
+    public void parse(String... args) {
 
         this.hasError = false;
         this.responseMessages = new ArrayList<String>();
@@ -122,7 +126,7 @@ public class PasswordPolicyParser {
                         this.responseMessages.add(MessageFormat.format(rb.getString("error.overRangeValueExceptionMessage"), args[i]));
                     }
                 } else if (rb.getString("symbolArgs").matches(args[i])) {
-                    this.acceptSymbolChar = Boolean.parseBoolean(args[++i]);
+                    this.isAcceptSymbolChar = Boolean.parseBoolean(args[++i]);
                 } else {
                     this.hasError = true;
                     this.responseMessages.add(MessageFormat.format(rb.getString("error.unexpectedArgumentsExceptionMessage"), args[i]));
@@ -204,7 +208,7 @@ public class PasswordPolicyParser {
      * @return acceptSymbolChar:boolean
      */
     public boolean isAcceptSymbolChar() {
-        return acceptSymbolChar;
+        return isAcceptSymbolChar;
     }
 
     /**
@@ -213,7 +217,7 @@ public class PasswordPolicyParser {
      * @param acceptSymbolChar
      */
     public void setAcceptSymbolChar(boolean acceptSymbolChar) {
-        this.acceptSymbolChar = acceptSymbolChar;
+        this.isAcceptSymbolChar = acceptSymbolChar;
     }
 
     /**
@@ -250,5 +254,23 @@ public class PasswordPolicyParser {
      */
     public void setResponseMessage(ArrayList<String> responseMessage) {
         this.responseMessages = responseMessage;
+    }
+
+    /**
+     * acceptedSpecialCharsを返すGetterメソッド
+     * 
+     * @return acceptedSpecialChars:char[]
+     */
+    public char[] getAcceptedSpecialChars() {
+        return acceptedSymbolChars;
+    }
+
+    /**
+     * acceptedSpesialCharsをセットするSetterメソッド
+     * 
+     * @param acceptedSpecialChars:char[]
+     */
+    public void setAcceptedSpecialChars(char[] acceptedSpecialChars) {
+        this.acceptedSymbolChars = acceptedSpecialChars;
     }
 }

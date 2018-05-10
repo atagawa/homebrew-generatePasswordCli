@@ -36,10 +36,17 @@ public class PasswordController {
      *            args:String[] -l length -c charCase -s acceptSymbolChar
      */
     public void run(String... args) {
-        ResourceBundle rb = ResourceBundle.getBundle("Messages");
+        final char ALL_SPECIAL_CHAR_IS_OK = '1';
+        final char SPECIFIED_CHAR_IS_OK = '2';
+        final char SPECIFIED_CHAR_IS_NG = '3';
+        final String BANNED_INPUT_CHARS = "([a-zA-Zz04-9])";
+        final int IDX_OF_HOW_TO_HANDLE_SYMBOL_CHAR = 0;
+        final int IDX_OF_START_ACTUAL_SYMBOL_CHAR = 1;
 
+        ResourceBundle rb = ResourceBundle.getBundle("Messages");
         PasswordPolicyParser parser = new PasswordPolicyParser();
-        parser.setPasswordPolicy(args);
+        parser.parse(args);
+
         if (parser.hasError()) {
             ArrayList<String> errors = parser.getResponseMessage();
             for (String error : errors) {
@@ -51,26 +58,48 @@ public class PasswordController {
                 System.out.println(rb.getString("defaultSpecialCharsInfo"));
                 System.out.println(rb.getString("default.acceptSpecialChars"));
                 System.out.println(rb.getString("ignoreSpecialCharsOperationInfo"));
+                System.out.println(rb.getString("ignoreSpecialCharsOperationParamInfo"));
                 System.out.println(rb.getString("igonoreSpecialCharsExample"));
 
-                try (InputStreamReader stream = new InputStreamReader(System.in);
-                        BufferedReader br = new BufferedReader(stream);) {
+                try (InputStreamReader stream = new InputStreamReader(System.in); BufferedReader br = new BufferedReader(stream);) {
                     String retString = br.readLine();
-                    Pattern pattern = Pattern.compile("([a-zA-Zz0-9])");
+
+                    Pattern pattern = Pattern.compile(BANNED_INPUT_CHARS);
                     Matcher matcher = pattern.matcher(retString);
                     if (matcher.find()) {
-                        System.err.println(MessageFormat.format(
-                                rb.getString("outputForRed") + rb.getString("error.inputNonSpecialChars"),
-                                matcher.group()));
+                        System.err.println(
+                                MessageFormat.format(rb.getString("outputForRed") + rb.getString("error.inputNonSpecialChars"), matcher.group()));
                         System.out.print(rb.getString("outputForBlack"));
                         return;
                     } else {
-                        char[] ret = retString.toCharArray();
-                        parser.setPasswordPolicy(new StringBuilder(parser.getPasswordPolicy()), ret);
+                        char retPattern = retString.charAt(IDX_OF_HOW_TO_HANDLE_SYMBOL_CHAR);
+
+                        switch (retPattern) {
+                        case ALL_SPECIAL_CHAR_IS_OK:/* 特殊文字を全て使用可能 */
+                            parser.setPasswordPolicy();
+                            // no code and use default value
+                            break;
+                        case SPECIFIED_CHAR_IS_OK:/* 指定した文字のみ使用可能 */
+                            parser.setAcceptedSpecialChars(retString.substring(IDX_OF_START_ACTUAL_SYMBOL_CHAR).toCharArray());
+                            parser.setPasswordPolicy();
+                            break;
+                        case SPECIFIED_CHAR_IS_NG: /* 指定した文字を使用不可能にする */
+                            parser.setPasswordPolicy();
+                            parser.setPasswordPolicy(new StringBuilder(parser.getPasswordPolicy()),
+                                    retString.substring(IDX_OF_START_ACTUAL_SYMBOL_CHAR).toCharArray());
+                            break;
+                        default:
+                            System.err.println(MessageFormat.format(rb.getString("outputForRed") + rb.getString("error.inputIncompatibleValue"),
+                                    retString.charAt(IDX_OF_HOW_TO_HANDLE_SYMBOL_CHAR)));
+                            System.out.print(rb.getString("outputForBlack"));
+                            return;
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            } else {
+                parser.setPasswordPolicy();
             }
             String password = new PasswordGenerator().generatePassword(parser);
             System.out.println(password);

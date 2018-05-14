@@ -1,7 +1,7 @@
-ii## macOS ##
+## macOS ##
 *.DS_Store
 
-## artifacts ##xc
+## artifacts ##
 bin/com
 *.classpath
 

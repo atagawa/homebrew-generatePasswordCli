@@ -2,7 +2,11 @@
 *.DS_Store
 
 ## artifacts ##
+<<<<<<< HEAD
 bin/com
+=======
+bin/com/
+>>>>>>> origin/master
 *.classpath
 
 ## eclipse ##

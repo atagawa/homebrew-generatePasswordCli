@@ -2,7 +2,7 @@
 *.DS_Store
 
 ## artifacts ##
-bin/
+bin/com
 *.classpath
 
 ## eclipse ##

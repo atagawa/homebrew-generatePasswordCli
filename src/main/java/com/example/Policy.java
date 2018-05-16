@@ -13,8 +13,9 @@ public class Policy {
      * 引数なしの場合、デフォルト値を各プロパティに格納します。
      */
     public Policy() {
-        this(SystemValue.defaultLength.toNumber(), SystemValue.defaultLetterCase.toNumber(),
-                SystemValue.defaultAcceptSymbolChar.toBoolean());
+        this(SystemValue.toNumber(SystemValueType.defaultLength),
+                SystemValue.toNumber(SystemValueType.defaultLetterCase),
+                SystemValue.toBoolean(SystemValueType.defaultAcceptSymbolChar));
     }
 
     /**

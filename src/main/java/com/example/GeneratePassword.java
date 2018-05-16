@@ -17,4 +17,5 @@ public class GeneratePassword {
     public static void main(String[] args) {
         new PasswordController().run(args);
     }
+    // TODO Maven化
 }

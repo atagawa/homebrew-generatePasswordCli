@@ -1,6 +1,15 @@
-package com.example;
+package com.example.parser;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.example.GeneratePasswordAppException;
+import com.example.MessageType;
+import com.example.Messages;
+import com.example.Policy;
+import com.example.SystemValue;
+import com.example.SystemValueType;
 
 /**
  * コマンドライン引数で指定された文字列をPolicyとして振る舞えるようパースするクラスです。
@@ -27,39 +36,41 @@ public class PasswordPolicyParser {
      * @throws GeneratePasswordAppException
      *             - 指定の引数に問題がある場合
      */
-    public Policy parse(String... args) {
+    public Policy parse(String... args) throws ParseException {
         Policy policy = new Policy();
-        StringBuilder errMsgs = new StringBuilder();
+        List<String> errMsgs = new ArrayList<>();
+        // TODO 2個指定してもエラーにならない
         for (int i = 0; i < args.length; ++i) {
             try {
                 if ("-l".matches(args[i])) {
                     policy.setPasswordLength(Integer.parseInt(args[++i]));
-                    if (policy.getPasswordLength() > SystemValue.maxLength.toNumber()) {
-                        errMsgs.append(
-                                MessageFormat.format(MessageType.ERRMSG_OVER_PASSWORD_LENGTH.toString(), args[i]));
+                    if (policy.getPasswordLength() > SystemValue.toNumber(SystemValueType.maxLength)) {
+                        errMsgs.add(MessageFormat.format(Messages.getMessages(MessageType.ERRMSG_OVER_PASSWORD_LENGTH),
+                                args[i]));
                     }
                 } else if ("-c".matches(args[i])) {
                     policy.setLetterCase(Integer.parseInt(args[++i]));
-                    if (policy.getLetterCase() >= SystemValue.outOfLetterCase.toNumber()) {
-                        errMsgs.append(MessageFormat.format(MessageType.ERRMSG_OVER_RANGE_VALUE.toString(), args[i]));
+                    if (policy.getLetterCase() >= SystemValue.toNumber(SystemValueType.outOfLetterCase)) {
+                        errMsgs.add(MessageFormat.format(Messages.getMessages(MessageType.ERRMSG_OVER_RANGE_VALUE),
+                                args[i]));
                     }
                 } else if ("-s".matches(args[i])) {
                     policy.setAcceptSymbolChar(Boolean.parseBoolean(args[++i]));
                 } else {
-                    errMsgs.append(MessageFormat.format(MessageType.ERRMSG_UNEXPECTED_ARGUMENTS.toString(), args[i]));
+                    errMsgs.add(MessageFormat.format(Messages.getMessages(MessageType.ERRMSG_UNEXPECTED_ARGUMENTS),
+                            args[i]));
                 }
             } catch (NumberFormatException e) {
-                errMsgs.append(MessageFormat.format(MessageType.ERRMSG_NUMBER_FORMAT.toString(), args[i]));
+                errMsgs.add(MessageFormat.format(Messages.getMessages(MessageType.ERRMSG_NUMBER_FORMAT), args[i]));
             } catch (ArrayIndexOutOfBoundsException e) {
-                errMsgs.append(
-                        MessageFormat.format(MessageType.ERRMSG_ARRAY_INDEX_OUT_OF_BOUNDS.toString(), args[--i]));
+                errMsgs.add(MessageFormat.format(Messages.getMessages(MessageType.ERRMSG_ARRAY_INDEX_OUT_OF_BOUNDS),
+                        args[--i]));
             }
         }
-        if (errMsgs.length() != 0) {
-            throw new GeneratePasswordAppException(errMsgs.toString());
-        } else {
-            return policy;
+        if (errMsgs.size() > 0) {
+            throw new ParseException(errMsgs);
         }
 
+        return policy;
     }
 }

@@ -1,5 +1,7 @@
 package com.example;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,10 +16,20 @@ import java.util.Set;
  */
 public class PasswordGenerator {
 
+    private Policy policy;
+    private Random randomNumberGenerator;
+    private char[] prohibitionChars;
+
     /**
      * 新規のPasswordGeneratorを構築します。
      */
-    public PasswordGenerator() {
+    public PasswordGenerator() throws NoSuchAlgorithmException {
+        this(new Policy(), SecureRandom.getInstanceStrong());
+    }
+
+    public PasswordGenerator(Policy policy, Random randomNumberGenerator) {
+        this.policy = policy;
+        this.randomNumberGenerator = randomNumberGenerator;
     }
 
     /**
@@ -31,7 +43,7 @@ public class PasswordGenerator {
      *            - パスワード文字列に含めない禁則文字（指定しないことも可能）
      * @return ポリシー及び乱数ジェネレータによって生成された文字列
      */
-    public String generatePassword(Policy policy, Random randomNumberGenerator, char... prohibitionChars) {
+    public String generatePassword() {
         Set<Character> passwordSet = new HashSet<>();
         Map<LetterType, Integer> letterMap = new EnumMap<>(LetterType.class);
         letterMap.put(LetterType.ACCEPT_UPPER_ONLY, 1);
@@ -49,7 +61,7 @@ public class PasswordGenerator {
             addAvailableChars(passwordSet, 'a', 'z');
         }
         if (policy.isAcceptSymbolChar()) {
-            addAvailableChars(passwordSet, SystemValue.defaultAcceptedSymbolChars.toString().toCharArray());
+            addAvailableChars(passwordSet, SystemValueType.defaultAcceptedSymbolChars.toString().toCharArray());
         }
 
         if (prohibitionChars.length != 0) {
@@ -67,17 +79,46 @@ public class PasswordGenerator {
     }
 
     private Set<Character> addAvailableChars(Set<Character> set, char startChar, char endChar) {
-        for (int i = startChar; i <= endChar; i++) {
-            set.add((char) i);
+        for (char c = startChar; c <= endChar; c++) {
+            set.add(c);
         }
         return set;
     }
 
     private Set<Character> addAvailableChars(Set<Character> set, char... chars) {
-        for (int c : chars) {
-            set.add((char) c);
+        for (char c : chars) {
+            set.add(c);
         }
         return set;
+    }
+
+    /**
+     * @return the policy
+     */
+    public Policy getPolicy() {
+        return policy;
+    }
+
+    /**
+     * @return the randomNumberGenerator
+     */
+    public Random getRandomNumberGenerator() {
+        return randomNumberGenerator;
+    }
+
+    /**
+     * @return the prohibitionChars
+     */
+    public char[] getProhibitionChars() {
+        return prohibitionChars;
+    }
+
+    /**
+     * @param prohibitionChars
+     *            the prohibitionChars to set
+     */
+    public void setProhibitionChars(char[] prohibitionChars) {
+        this.prohibitionChars = prohibitionChars;
     }
 
 }

@@ -1,10 +1,3 @@
-## macOS ##
-*.DS_Store
-
 ## artifacts ##
 bin/com
 *.classpath
-
-## eclipse ##
-.settings/
-*.project

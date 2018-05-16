@@ -14,9 +14,9 @@ Overview
 
 1. このリポジトリをローカルにCloneする  
 2. プロジェクトのルートフォルダに移動し、以下のコマンドを入力する  
-    `javac -d bin src/com/example/*.java`  
+    `mvn install`  
 3. 以下のコマンドを実行する  
-    `java -classpath bin com.example.GeneratePassword`  
+    `java -jar target/GeneratePassword-0.0.1-SNAPSHOT.jar`  
     
 ## Arguments
 
@@ -34,6 +34,6 @@ Overview
     false:記号を許可しない  
     
 ## Example
-    java -classpath bin com.example.GeneratePassword
-    java -classpath bin com.example.GeneratePassword -l 12 -c 2 -s false
-    java -classpath bin com.example.GeneratePassword -s false
+    java -jar target/GeneratePassword-0.0.1-SNAPSHOT.jar
+    java -jar target/GeneratePassword-0.0.1-SNAPSHOT.jar -l 12 -c 2 -s false
+    java -jar target/GeneratePassword-0.0.1-SNAPSHOT.jar -s false

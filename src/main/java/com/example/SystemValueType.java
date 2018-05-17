@@ -12,8 +12,10 @@ public enum SystemValueType {
     defaultAcceptSymbolChar,
     defaultAcceptedSymbolChars,
     maxLength,
-    outOfLetterCase,
     outputForRed,
     outputForBlack,
-    newLineCode;
+    newLineCode,
+    minLength,
+    minOfLetterCase,
+    maxOfLetterCase;
 }

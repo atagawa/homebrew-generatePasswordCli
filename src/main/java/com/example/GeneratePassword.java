@@ -8,6 +8,10 @@ package com.example;
  */
 public class GeneratePassword {
 
+    public GeneratePassword() {
+        throw new UnsupportedOperationException("this class is static.");
+    }
+
     /**
      * パスワードを生成するアプリのエントリポイントです。
      * 
@@ -17,5 +21,4 @@ public class GeneratePassword {
     public static void main(String[] args) {
         new PasswordController().run(args);
     }
-    // TODO Maven化
 }

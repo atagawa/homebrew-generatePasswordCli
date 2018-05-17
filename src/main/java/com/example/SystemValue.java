@@ -6,9 +6,6 @@ import java.util.ResourceBundle;
 
 public class SystemValue {
 
-    public SystemValue() {
-    }
-
     private static final String INT_PROP_ERRMSG = "設定値[{0}]の値はint型でなくてはなりません。設定ファイルを確認してください。";
     private static final String PROP_FILE_NAME = "SystemValue";
     private static final String MISSING_PROP_MSG = "設定ファイルまたは設定値が見つかりませんでした。:{0}";
@@ -21,6 +18,10 @@ public class SystemValue {
         } catch (MissingResourceException e) {
             throw new GeneratePasswordAppException(MessageFormat.format(MISSING_PROP_MSG, e.getMessage()));
         }
+    }
+
+    public SystemValue() {
+        throw new UnsupportedOperationException("this is static class.");
     }
 
     /**

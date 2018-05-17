@@ -39,18 +39,19 @@ public class PasswordPolicyParser {
     public Policy parse(String... args) throws ParseException {
         Policy policy = new Policy();
         List<String> errMsgs = new ArrayList<>();
-        // TODO 2個指定してもエラーにならない
         for (int i = 0; i < args.length; ++i) {
             try {
                 if ("-l".matches(args[i])) {
                     policy.setPasswordLength(Integer.parseInt(args[++i]));
-                    if (policy.getPasswordLength() > SystemValue.toNumber(SystemValueType.maxLength)) {
+                    if (policy.getPasswordLength() < SystemValue.toNumber(SystemValueType.minLength)
+                            || SystemValue.toNumber(SystemValueType.maxLength) < policy.getPasswordLength()) {
                         errMsgs.add(MessageFormat.format(Messages.getMessages(MessageType.ERRMSG_OVER_PASSWORD_LENGTH),
                                 args[i]));
                     }
                 } else if ("-c".matches(args[i])) {
                     policy.setLetterCase(Integer.parseInt(args[++i]));
-                    if (policy.getLetterCase() >= SystemValue.toNumber(SystemValueType.outOfLetterCase)) {
+                    if (policy.getLetterCase() < SystemValue.toNumber(SystemValueType.minOfLetterCase)
+                            || SystemValue.toNumber(SystemValueType.maxOfLetterCase) < policy.getLetterCase()) {
                         errMsgs.add(MessageFormat.format(Messages.getMessages(MessageType.ERRMSG_OVER_RANGE_VALUE),
                                 args[i]));
                     }

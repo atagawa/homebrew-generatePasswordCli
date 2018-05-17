@@ -64,7 +64,7 @@ public class PasswordGenerator {
             addAvailableChars(passwordSet, SystemValueType.defaultAcceptedSymbolChars.toString().toCharArray());
         }
 
-        if (prohibitionChars.length != 0) {
+        if (this.prohibitionChars != null) {
             for (char c : prohibitionChars) {
                 passwordSet.remove(c);
             }

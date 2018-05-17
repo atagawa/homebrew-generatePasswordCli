@@ -61,7 +61,8 @@ public class PasswordGenerator {
             addAvailableChars(passwordSet, 'a', 'z');
         }
         if (policy.isAcceptSymbolChar()) {
-            addAvailableChars(passwordSet, SystemValueType.defaultAcceptedSymbolChars.toString().toCharArray());
+            addAvailableChars(passwordSet,
+                    SystemValue.toMessage(SystemValueType.defaultAcceptedSymbolChars).toCharArray());
         }
 
         if (this.prohibitionChars != null) {

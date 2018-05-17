@@ -94,6 +94,8 @@ public class PasswordGenerator {
     }
 
     /**
+     * パスワード生成に使用するポリシーを取得します。
+     * 
      * @return the policy
      */
     public Policy getPolicy() {
@@ -101,6 +103,8 @@ public class PasswordGenerator {
     }
 
     /**
+     * パスワード生成に使用する擬似乱数生成器を取得します。
+     * 
      * @return the randomNumberGenerator
      */
     public Random getRandomNumberGenerator() {
@@ -108,6 +112,8 @@ public class PasswordGenerator {
     }
 
     /**
+     * パスワード生成時の禁則文字を取得します。
+     * 
      * @return the prohibitionChars
      */
     public char[] getProhibitionChars() {
@@ -115,6 +121,8 @@ public class PasswordGenerator {
     }
 
     /**
+     * パスワード生成時の禁則文字を設定します。
+     * 
      * @param prohibitionChars
      *            the prohibitionChars to set
      */

@@ -22,11 +22,22 @@ public class PasswordGenerator {
 
     /**
      * 新規のPasswordGeneratorを構築します。
+     * 
+     * @throws NoSuchAlgorithmException
+     *             - 指定したアルゴリスムが存在しない場合（アルゴリズムは自動取得のため、エラー時はシステムの確認が必要）
      */
     public PasswordGenerator() throws NoSuchAlgorithmException {
         this(new Policy(), SecureRandom.getInstanceStrong());
     }
 
+    /**
+     * パスワードのポリシーと乱数生成アルゴリズムを指定して新規のGeneratePasswordを構築します。
+     * 
+     * @param policy
+     *            - パスワードポリシーの情報を保持するPolicyインスタンス
+     * @param randomNumberGenerator
+     *            - 乱数ジェネレータ
+     */
     public PasswordGenerator(Policy policy, Random randomNumberGenerator) {
         this.policy = policy;
         this.randomNumberGenerator = randomNumberGenerator;
@@ -35,12 +46,6 @@ public class PasswordGenerator {
     /**
      * 擬似乱数を生成し、パスワードに利用可能なランダム文字列を返します。
      * 
-     * @param policy
-     *            - パスワードポリシーの情報を保持するPolicyインスタンス
-     * @param randomNumberGenerator
-     *            - 乱数ジェネレータ
-     * @param prohibitionChars
-     *            - パスワード文字列に含めない禁則文字（指定しないことも可能）
      * @return ポリシー及び乱数ジェネレータによって生成された文字列
      */
     public String generatePassword() {
@@ -62,7 +67,7 @@ public class PasswordGenerator {
         }
         if (policy.isAcceptSymbolChar()) {
             addAvailableChars(passwordSet,
-                    SystemValue.toMessage(SystemValueType.defaultAcceptedSymbolChars).toCharArray());
+                    PropertiesValue.getPropertiesValue().getDefaultAcceptedSymbolChars().toCharArray());
         }
 
         if (this.prohibitionChars != null) {

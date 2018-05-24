@@ -4,6 +4,7 @@ package com.example;
  * システムメッセージを管理する列挙型クラスです。
  * 
  * @author atagawa
+ * @since 1.0.0d 2018/05/23
  *
  */
 public enum MessageType {

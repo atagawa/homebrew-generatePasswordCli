@@ -4,6 +4,7 @@ package com.example;
  * 許可される英字の種別を管理する列挙型クラスです。
  * 
  * @author atagawa
+ * @since 1.0.0d 2018/05/23
  *
  */
 public enum LetterType {

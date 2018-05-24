@@ -4,6 +4,7 @@ package com.example;
  * GeneratePasswordアプリにおける例外をスローするためのクラスです。
  * 
  * @author atagawa
+ * @since 1.0.0d 2018/05/23
  *
  */
 public class GeneratePasswordAppException extends RuntimeException {

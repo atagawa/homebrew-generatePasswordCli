@@ -2,6 +2,7 @@ package com.example;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.security.SecureRandom;
 
@@ -14,13 +15,34 @@ public class PasswordGeneratorTest {
     @Before
     public void setUp() throws Exception {
         passwordGenerator = new PasswordGenerator();
-
     }
 
     @Test
     public void generatePasswordTest() {
         passwordGenerator.setProhibitionChars(new char[] { '*', '+', '-', '/' });
-        passwordGenerator.generatePassword();
+        String ret = passwordGenerator.generatePassword();
+        assertTrue(ret.matches("[a-zA-Z0-9!\"#$%&'(),.:;<=>?@\\[\\]^_`{|}~]*"));
+    }
+
+    @Test
+    public void generatePasswordWithUpperCaseTest() {
+        passwordGenerator.getPolicy().setLetterCase(1);
+        String ret = passwordGenerator.generatePassword();
+        assertTrue(ret.matches("[A-Z0-9!\"#$%&'()*+,-.//:;<=>?@\\[\\]^_`{|}~]*"));
+    }
+
+    @Test
+    public void generatePasswordWithowerCaseTest() {
+        passwordGenerator.getPolicy().setLetterCase(2);
+        String ret = passwordGenerator.generatePassword();
+        assertTrue(ret.matches("[a-z0-9!\"#$%&'()*+,-.//:;<=>?@\\[\\]^_`{|}~]*"));
+    }
+
+    @Test
+    public void generatePasswordWithUnacceptedSymbol() {
+        passwordGenerator.getPolicy().setAcceptSymbolChar(false);
+        String ret = passwordGenerator.generatePassword();
+        assertTrue(ret.matches("[a-zA-Z0-9]*"));
     }
 
     @Test

@@ -44,5 +44,4 @@ public class PolicyTest {
         policy.setAcceptSymbolChar(false);
         assertThat(policy.isAcceptSymbolChar(), is(false));
     }
-
 }

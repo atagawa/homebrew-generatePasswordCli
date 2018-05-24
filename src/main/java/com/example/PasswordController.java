@@ -8,6 +8,8 @@ import java.security.SecureRandom;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.kohsuke.args4j.CmdLineParser;
+
 import com.example.parser.ParseException;
 import com.example.parser.PasswordPolicyParser;
 
@@ -32,43 +34,42 @@ public class PasswordController {
      *            - コマンドライン引数
      */
     public void run(String... args) {
-        MessageUtil util = new ConsoleMessageUtil();
+        OutputUtil util = new ConsoleOutputUtil();
         try {
             Policy policy = new PasswordPolicyParser().parse(args);
-            SecureRandom secureRandom = SecureRandom.getInstanceStrong();
-            PasswordGenerator generator = new PasswordGenerator(policy, secureRandom);
-            String password;
-
+            PasswordGenerator generator = new PasswordGenerator(policy, SecureRandom.getInstanceStrong());
             // 記号を許可する場合は禁則文字をユーザーに確認する
             if (policy.isAcceptSymbolChar()) {
                 inputProhibitionChars(generator);
             }
-            password = generator.generatePassword();
-            util.outputMessage(password);
+            util.outputMessage(generator.generatePassword());
         } catch (ParseException e) {
+            CmdLineParser parser = e.getParser();
+            util.outputMessage("Usege : ");
+            parser.printSingleLineUsage(System.out);
+            util.outputMessage(System.lineSeparator());
+            parser.printUsage(System.out);
+
             List<String> errors = e.getErrors();
-            String newLineCode = SystemValue.toMessage(SystemValueType.newLineCode);
-            StringBuilder message = new StringBuilder();
+            util.outputError("Errors : ");
             for (String s : errors) {
-                message.append(s);
-                if (!s.equals(errors.get(errors.size() - 1))) {
-                    message.append(newLineCode);
-                }
+                util.outputError(s);
             }
-            util.outputError(message.toString());
         } catch (NoSuchAlgorithmException e) {
-            util.outputError(
-                    MessageFormat.format(Messages.getMessages(MessageType.ERRMSG_NO_SUCH_ALGORITHM), e.getMessage()));
+            util.outputError(MessageFormat.format(
+                    PropertiesValue.getPropertiesMessage().getMessage(MessageType.ERRMSG_NO_SUCH_ALGORITHM),
+                    e.getMessage()));
         } catch (GeneratePasswordAppException e) {
             util.outputError(e.getMessage());
         }
     }
 
     private void inputProhibitionChars(PasswordGenerator generator) {
-        ConsoleMessageUtil util = new ConsoleMessageUtil();
-        util.outputMessage(Messages.getMessages(MessageType.INFMSG_DEFAULT_SPETIAL_CHARS));
-        util.outputMessage(SystemValue.toMessage(SystemValueType.defaultAcceptedSymbolChars));
-        util.outputMessage(Messages.getMessages(MessageType.INFMSG_IGNORE_SPETIAL_CHAR_OPERATION));
+        ConsoleOutputUtil util = new ConsoleOutputUtil();
+        util.outputMessage(PropertiesValue.getPropertiesMessage().getMessage(MessageType.INFMSG_DEFAULT_SPETIAL_CHARS));
+        util.outputMessage(PropertiesValue.getPropertiesValue().getDefaultAcceptedSymbolChars());
+        util.outputMessage(
+                PropertiesValue.getPropertiesMessage().getMessage(MessageType.INFMSG_IGNORE_SPETIAL_CHAR_OPERATION));
         try (InputStreamReader s = new InputStreamReader(System.in); BufferedReader br = new BufferedReader(s)) {
             char[] retChars = br.readLine().toCharArray();
             generator.setProhibitionChars(retChars);

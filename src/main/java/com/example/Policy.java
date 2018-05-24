@@ -4,22 +4,23 @@ package com.example;
  * パスワードポリシーを保持するエンティティクラスです。
  * 
  * @author atagawa
+ * @since 1.0.0d 2018/05/23
  *
  */
 public class Policy {
 
     /**
-     * 新規のPolicyクラスを構築します。<br>
+     * 新規のPolicyを構築します。<br>
      * 引数なしの場合、デフォルト値を各プロパティに格納します。
      */
     public Policy() {
-        this(SystemValue.toNumber(SystemValueType.defaultLength),
-                SystemValue.toNumber(SystemValueType.defaultLetterCase),
-                SystemValue.toBoolean(SystemValueType.defaultAcceptSymbolChar));
+        this(PropertiesValue.getPropertiesValue().getDefaultLength(),
+                PropertiesValue.getPropertiesValue().getDefaultLetterCase(),
+                PropertiesValue.getPropertiesValue().getDefaultAcceptSymbolChars());
     }
 
     /**
-     * 指定した値を初期値とするPolicyクラスを構築します。
+     * 初期値を指定して新規のPolicyを構築します。
      * 
      * @param passwordLength
      *            - パスワードの長さ

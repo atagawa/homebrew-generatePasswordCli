@@ -38,5 +38,4 @@ public class GeneratePasswordAppExceptionTest {
             assertThat(e.getCause(), is(throwable));
         }
     }
-
 }

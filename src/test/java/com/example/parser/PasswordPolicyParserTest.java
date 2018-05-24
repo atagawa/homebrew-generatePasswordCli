@@ -2,6 +2,7 @@ package com.example.parser;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,98 +18,95 @@ public class PasswordPolicyParserTest {
     }
 
     @Test
-    public void parseTest() {
-        Policy policy = new Policy(64, 1, false);
-        Policy actualPolicy = parser.parse(generateParseArgs("64", "1", "false"));
+    public void parseWithsTest() {
+        Policy policy = new Policy(64, 1, true);
+        Policy actualPolicy = parser.parse(generateParseArgs("64", "1", "-s"));
         assertThat(actualPolicy.getPasswordLength(), is(policy.getPasswordLength()));
         assertThat(actualPolicy.getLetterCase(), is(policy.getLetterCase()));
         assertThat(actualPolicy.isAcceptSymbolChar(), is(policy.isAcceptSymbolChar()));
     }
 
     @Test
+    public void parseWithSTest() {
+        Policy policy = new Policy(64, 1, false);
+        Policy actualPolicy = parser.parse(generateParseArgs("64", "1", "-S"));
+        assertThat(actualPolicy.getPasswordLength(), is(policy.getPasswordLength()));
+        assertThat(actualPolicy.getLetterCase(), is(policy.getLetterCase()));
+        assertThat(actualPolicy.isAcceptSymbolChar(), is(policy.isAcceptSymbolChar()));
+    }
+
+    @Test
+    public void parseWithoutSTest() {
+        Policy policy = new Policy(64, 1, true);
+        Policy actualPolicy = parser.parse(new String[] { "-l", "64", "-c", "1" });
+        assertThat(actualPolicy.getPasswordLength(), is(policy.getPasswordLength()));
+        assertThat(actualPolicy.getLetterCase(), is(policy.getLetterCase()));
+        assertThat(actualPolicy.isAcceptSymbolChar(), is(policy.isAcceptSymbolChar()));
+    }
+
+    @Test(expected = ParseException.class)
     public void lengthIsNotIntTest() {
-        try {
-            parser.parse(generateParseArgs("aaa", "2", "true"));
-        } catch (ParseException e) {
-            assertThat(e.getErrors().get(0), is("-l, -cにはint型を指定してください。 : aaa"));
-        }
+        parser.parse(generateParseArgs("aaa", "2", "-s"));
+        fail("Expected exception is not catched.");
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void caseIsNotIntTest() {
-        try {
-            parser.parse(generateParseArgs("16", "bbb", "true"));
-        } catch (ParseException e) {
-            assertThat(e.getErrors().get(0), is("-l, -cにはint型を指定してください。 : bbb"));
-        }
+        parser.parse(generateParseArgs("16", "bbb", "-s"));
+        fail("Expected exception is not catched.");
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void lengthIsOverTest() {
-        try {
-            parser.parse(generateParseArgs("65", "2", "true"));
-        } catch (ParseException e) {
-            assertThat(e.getErrors().get(0), is("-lには1~64までの整数を指定してください。 : 65"));
-        }
+        parser.parse(generateParseArgs("65", "2", "-s"));
+        fail("Expected exception is not catched.");
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void lengthIsUnderTest() {
-        try {
-            parser.parse(generateParseArgs("0", "2", "true"));
-        } catch (ParseException e) {
-            assertThat(e.getErrors().get(0), is("-lには1~64までの整数を指定してください。 : 0"));
-        }
+        parser.parse(generateParseArgs("0", "2", "-s"));
+        fail("Expected exception is not catched.");
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void caseIsOverTest() {
-        try {
-            parser.parse(generateParseArgs("16", "4", "true"));
-        } catch (ParseException e) {
-            assertThat(e.getErrors().get(0), is("-cには0~3の整数を指定してください。 : 4"));
-        }
+        parser.parse(generateParseArgs("16", "4", "-s"));
+        fail("Expected exception is not catched.");
     }
 
+    @Test(expected = ParseException.class)
     public void caseIsUnderTest() {
-        try {
-            parser.parse(generateParseArgs("16", "-1", "true"));
-        } catch (ParseException e) {
-            assertThat(e.getErrors().get(0), is("-cには0~3の整数を指定してください。 : -1"));
-        }
+        parser.parse(generateParseArgs("16", "-1", "-s"));
+        fail("Expected exception is not catched.");
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void illegalArgsTest() {
-        try {
-            parser.parse(new String[] { "-l", "16", "-c", "3", "-b" });
-        } catch (ParseException e) {
-            assertThat(e.getErrors().get(0), is("不明な引数が指定されました。 : -b"));
-        }
+        parser.parse(new String[] { "-l", "16", "-c", "3", "-b" });
+        fail("Expected exception is not catched.");
+
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void mismatchParamTest() {
-        try {
-            parser.parse(new String[] { "-l" });
-        } catch (ParseException e) {
-            assertThat(e.getErrors().get(0), is("引数の後にパラメータがありません。引数とパラメータを正しく組み合わせて指定してください。 : -l"));
-        }
+        parser.parse(new String[] { "-l" });
+        fail("Expected exception is not catched.");
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void multiErrorTest() {
-        try {
-            parser.parse(generateParseArgs("xxx", "yyy", "true"));
-        } catch (ParseException e) {
-            assertThat(e.getErrors().get(0), is("-l, -cにはint型を指定してください。 : xxx"));
-            assertThat(e.getErrors().get(1), is("-l, -cにはint型を指定してください。 : yyy"));
+        parser.parse(generateParseArgs("xxx", "yyy", "-s"));
+        fail("Expected exception is not catched.");
+    }
 
-        }
+    @Test(expected = ParseException.class)
+    public void getOthersTest() {
+        parser.parse(new String[] { "-l", "10", "-c", "3", "-s", "aaa", "bbb" });
+        fail("Expected exception is not catched.");
     }
 
     private String[] generateParseArgs(String passwordLength, String letterCase, String acceptSymbolChar) {
-        return new String[] { "-l", passwordLength, "-c", letterCase, "-s", acceptSymbolChar };
+        return new String[] { "-l", passwordLength, "-c", letterCase, acceptSymbolChar };
     }
 
 }

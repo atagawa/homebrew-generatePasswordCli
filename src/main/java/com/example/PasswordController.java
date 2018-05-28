@@ -8,10 +8,8 @@ import java.security.SecureRandom;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-
-import com.example.parser.ParseException;
-import com.example.parser.PasswordPolicyParser;
 
 /**
  * パスワードを生成するコントロールクラスです。
@@ -22,12 +20,6 @@ import com.example.parser.PasswordPolicyParser;
 public class PasswordController {
 
     /**
-     * 新規のPasswordContollerを構築します。
-     */
-    public PasswordController() {
-    }
-
-    /**
      * パスワードを生成する処理をコントロールします。
      * 
      * @param args
@@ -35,26 +27,32 @@ public class PasswordController {
      */
     public void run(String... args) {
         OutputUtil util = new ConsoleOutputUtil();
+        CliArguments policy = new CliArguments();
+        CmdLineParser parser = new CmdLineParser(policy);
         try {
-            Policy policy = new PasswordPolicyParser().parse(args);
-            PasswordGenerator generator = new PasswordGenerator(policy, SecureRandom.getInstanceStrong());
-            // 記号を許可する場合は禁則文字をユーザーに確認する
-            if (policy.isAcceptSymbolChar()) {
-                inputProhibitionChars(generator);
+            parser.parseArgument(args);
+            PasswordPolicyValidator validator = new PasswordPolicyValidator();
+            if (!validator.validate(policy)) {
+                PasswordGenerator generator = new PasswordGenerator(policy, SecureRandom.getInstanceStrong());
+                // 記号を許可する場合は禁則文字をユーザーに確認する
+                // if()
+                if (!policy.isUnacceptSymbolChar()) {
+                    inputProhibitionChars(generator);
+                }
+                util.outputMessage(generator.generatePassword());
+            } else {
+                List<String> errors = validator.getErrors();
+                util.outputError("Errors : ");
+                for (String s : errors) {
+                    util.outputError(s);
+                }
             }
-            util.outputMessage(generator.generatePassword());
-        } catch (ParseException e) {
-            CmdLineParser parser = e.getParser();
+        } catch (CmdLineException e) {
+            System.err.println(e.getMessage());
             util.outputMessage("Usege : ");
             parser.printSingleLineUsage(System.out);
             util.outputMessage(System.lineSeparator());
             parser.printUsage(System.out);
-
-            List<String> errors = e.getErrors();
-            util.outputError("Errors : ");
-            for (String s : errors) {
-                util.outputError(s);
-            }
         } catch (NoSuchAlgorithmException e) {
             util.outputError(MessageFormat.format(
                     PropertiesValue.getPropertiesMessage().getMessage(MessageType.ERRMSG_NO_SUCH_ALGORITHM),

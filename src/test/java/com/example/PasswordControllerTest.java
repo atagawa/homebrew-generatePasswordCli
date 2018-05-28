@@ -12,6 +12,19 @@ public class PasswordControllerTest {
     private InputSnatcherForTest in = new InputSnatcherForTest();
     ByteArrayOutputStream out;
     PrintStream syserr;
+    OutputUtil util = new OutputUtil() {
+
+        @Override
+        public void outputMessage(String message) {
+            System.out.println(message);
+
+        }
+
+        @Override
+        public void outputError(String message) {
+            System.err.println(message);
+        }
+    };
 
     @Before
     public void setUp() throws Exception {
